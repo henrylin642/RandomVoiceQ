@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Volume2 } from 'lucide-react';
 import { Question } from '@/utils/excel';
 import { speak, TTSProvider } from '@/utils/tts';
@@ -13,14 +13,27 @@ interface QuestionCardProps {
 }
 
 export default function QuestionCard({ question, ttsConfig }: QuestionCardProps) {
-    const handleSpeak = (text: string, lang: 'zh-TW' | 'en-US') => {
-        speak(text, lang, ttsConfig);
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    const handleSpeak = async (text: string, lang: 'zh-TW' | 'en-US') => {
+        if (isPlaying) return;
+
+        try {
+            setIsPlaying(true);
+            await speak(text, lang, ttsConfig);
+        } catch (error: any) {
+            console.error("TTS Error:", error);
+            alert(`TTS Error: ${error.message || 'Unknown error'}. Please check your API Key and Region.`);
+        } finally {
+            setIsPlaying(false);
+        }
     };
 
     return (
         <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white flex justify-between items-center">
                 <h2 className="text-xl font-bold">Question #{question.id}</h2>
+                {isPlaying && <span className="text-sm animate-pulse bg-white/20 px-2 py-1 rounded">Playing Audio...</span>}
             </div>
 
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">

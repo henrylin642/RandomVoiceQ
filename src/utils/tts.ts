@@ -55,11 +55,13 @@ const speakAzure = (
                 if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
                     resolve();
                 } else {
-                    reject(new Error(result.errorDetails));
+                    console.error("Azure TTS Error Details:", result.errorDetails);
+                    reject(new Error(`Azure TTS Failed: ${result.errorDetails}`));
                 }
                 synthesizer.close();
             },
             (err) => {
+                console.error("Azure TTS Network/System Error:", err);
                 reject(err);
                 synthesizer.close();
             }
