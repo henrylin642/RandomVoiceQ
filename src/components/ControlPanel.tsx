@@ -111,7 +111,7 @@ export default function ControlPanel({ onRandom, totalQuestions, onConfigChange 
                                         type="text"
                                         value={azureRegion}
                                         onChange={(e) => handleConfigUpdate('azure', azureKey, e.target.value)}
-                                        placeholder="e.g. eastus"
+                                        placeholder={process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION ? `Default: ${process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION}` : "e.g. eastus"}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
@@ -121,12 +121,30 @@ export default function ControlPanel({ onRandom, totalQuestions, onConfigChange 
                                         type="password"
                                         value={azureKey}
                                         onChange={(e) => handleConfigUpdate('azure', e.target.value, azureRegion)}
-                                        placeholder="Enter your Azure Speech Key"
+                                        placeholder={process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY ? "Using Environment Variable" : "Enter your Azure Speech Key"}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                             </div>
                         )}
+                    </div>
+
+                    <div className="pt-2 border-t border-gray-100 flex justify-end">
+                        <button
+                            onClick={() => {
+                                localStorage.removeItem('ttsConfig');
+                                const envKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || '';
+                                const envRegion = process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION || '';
+                                setProvider(envKey ? 'azure' : 'browser');
+                                setAzureKey(envKey);
+                                setAzureRegion(envRegion);
+                                onConfigChange({ provider: envKey ? 'azure' : 'browser', azureKey: envKey, azureRegion: envRegion });
+                                alert("Settings reset to defaults (Environment Variables).");
+                            }}
+                            className="text-xs text-red-500 hover:text-red-700 underline"
+                        >
+                            Reset to Defaults / Clear Cache
+                        </button>
                     </div>
                 </div>
             )}
