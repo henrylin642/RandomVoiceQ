@@ -20,11 +20,21 @@ export default function ControlPanel({ onRandom, totalQuestions, onConfigChange 
             try {
                 const parsed = JSON.parse(savedConfig);
                 setProvider(parsed.provider || 'browser');
-                setAzureKey(parsed.azureKey || '');
-                setAzureRegion(parsed.azureRegion || '');
+                setAzureKey(parsed.azureKey || process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || '');
+                setAzureRegion(parsed.azureRegion || process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION || '');
                 onConfigChange(parsed);
             } catch (e) {
                 console.error("Failed to parse saved TTS config", e);
+            }
+        } else {
+            // Load from env if no saved config
+            const envKey = process.env.NEXT_PUBLIC_AZURE_SPEECH_KEY || '';
+            const envRegion = process.env.NEXT_PUBLIC_AZURE_SPEECH_REGION || '';
+            if (envKey && envRegion) {
+                setProvider('azure');
+                setAzureKey(envKey);
+                setAzureRegion(envRegion);
+                onConfigChange({ provider: 'azure', azureKey: envKey, azureRegion: envRegion });
             }
         }
     }, []);
